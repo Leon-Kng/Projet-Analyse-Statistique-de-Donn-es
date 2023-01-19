@@ -43,16 +43,23 @@ df_C[8,4]=df_C[7,3]+df_C[8,3]
 df_C[9,4]=df_C[9,3]+df_C[10,3]
 df_C[10,4]=df_C[9,3]+df_C[10,3]
   
-df_C$Fréquence <- df_C$Effectifs/df_C$Total_Temp
+df_C$Proportion <- df_C$Effectifs/df_C$Total_Temp*100
 
 ### Graphique
-ggplot(data=df_C, aes(x=Température, y=Fréquence, fill=Devenir)) +
+ggplot(data=df_C, aes(x=Température, y=Proportion, fill=Devenir)) +
   geom_bar(stat="identity") + 
-  labs(title="Longue exposition")
+  labs(title="Longue exposition aux températures",x="Température (en °C)", y="Proportion de chenilles (en %)")+ 
+  scale_fill_manual(values=c("#52BD1D", "#BD1D1D"), name="Devenir final des chenilles :", breaks=c("parasitoide","pas de parasitoide"), labels=c("Donnent des parasitoïdes", "Ne donnent pas de parasitoïdes"))+
+  theme(axis.text=element_text(size=18),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text(size=20),,
+        legend.text=element_text(size=10),
+        legend.title=element_text(size=10, face="bold"))
 
-chisq.test(tab_cont_C)  # test du khid deux d'homogénéité   
+
+# test du khid deux d'homogénéité  
 tab_cont_C
-chisq.test(tab_cont_C)$expected
+chisq.test(tab_cont_C)   
 
 
 # Barplot courte exposition
@@ -78,12 +85,21 @@ df_L[8,4]=df_L[7,3]+df_L[8,3]
 df_L[9,4]=df_L[9,3]+df_L[10,3]
 df_L[10,4]=df_L[9,3]+df_L[10,3]
 
-df_L$Fréquence <- df_L$Effectifs/df_L$Total_Temp
+df_L$Proportion <- df_L$Effectifs/df_L$Total_Temp*100
 
-# Graphique
-ggplot(data=df_L, aes(x=Température, y=Fréquence, fill=Devenir)) +
-  geom_bar(stat="identity")+ 
-  labs(title="Courte exposition")
+# Barplot courte
+ggplot(data=df_L, aes(x=Température, y=Proportion, fill=Devenir)) +
+  geom_bar(stat="identity") + 
+  labs(title="Courte exposition aux températures",x="Température (en °C)", y="Proportion de chenilles (en %)")+ 
+  scale_fill_manual(values=c("#52BD1D", "#BD1D1D"), name="Devenir final des chenilles :", breaks=c("parasitoide","pas de parasitoide"), labels=c("Donnent des parasitoïdes", "Ne donnent pas de parasitoïdes"))+
+  theme(axis.text=element_text(size=18),
+        axis.title=element_text(size=18,face="bold"),
+        plot.title = element_text(size=20),,
+        legend.text=element_text(size=10),
+        legend.title=element_text(size=10, face="bold"))
 
+
+# Test du khi2 d'homogénéité
+tab_cont_L
 chisq.test(tab_cont_L)
 

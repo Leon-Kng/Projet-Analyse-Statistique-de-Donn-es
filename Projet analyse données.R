@@ -52,12 +52,15 @@ ggplot(data=df_C, aes(x=Température, y=Proportion, fill=Devenir)) +
   scale_fill_manual(values=c("#52BD1D", "#BD1D1D"), name="Devenir final des chenilles :", breaks=c("parasitoide","pas de parasitoide"), labels=c("Donnent des parasitoïdes", "Ne donnent pas de parasitoïdes"))+
   theme(axis.text=element_text(size=18),
         axis.title=element_text(size=18,face="bold"),
-        plot.title = element_text(size=20),,
+        plot.title = element_text(size=20),
         legend.text=element_text(size=10),
         legend.title=element_text(size=10, face="bold"))
 
+# On vérifie que tous les effectifs théoriques sont supérieurs à 5
+eff_theo_C <- chisq.test(tab_cont_C)$expected
+eff_theo_C
 
-# test du khid deux d'homogénéité  
+# test du khi deux d'homogénéité  
 tab_cont_C
 chisq.test(tab_cont_C)   
 
@@ -72,6 +75,8 @@ colnames(df_L)[1] <- "Devenir"
 colnames(df_L)[2] <- "Température"
 colnames(df_L)[3] <- "Effectifs"
 df_L$Total_Temp=c(0,0,0,0,0,0,0,0,0,0)  # création d'une ligne pour la somme des effectifs pour chaque température
+
+
 
 # Calcul de la somme pour chaque température pour déterminer la proportion
 df_L[1,4]=df_L[1,3]+df_L[2,3]
@@ -94,12 +99,14 @@ ggplot(data=df_L, aes(x=Température, y=Proportion, fill=Devenir)) +
   scale_fill_manual(values=c("#52BD1D", "#BD1D1D"), name="Devenir final des chenilles :", breaks=c("parasitoide","pas de parasitoide"), labels=c("Donnent des parasitoïdes", "Ne donnent pas de parasitoïdes"))+
   theme(axis.text=element_text(size=18),
         axis.title=element_text(size=18,face="bold"),
-        plot.title = element_text(size=20),,
+        plot.title = element_text(size=20),
         legend.text=element_text(size=10),
         legend.title=element_text(size=10, face="bold"))
 
+# On vérifie que tous les effectifs théoriques sont supérieurs à 5
+eff_theo_L <- chisq.test(tab_cont_L)$expected
+eff_theo_L
 
 # Test du khi2 d'homogénéité
 tab_cont_L
 chisq.test(tab_cont_L)
-

@@ -23,6 +23,8 @@ valeurs_col1_ech1<-df$col1[df$col2=="test"] # stocke dans un vecteur les valeurs
 df2$col1<-droplevels(tab2$col1)  # diminue le nombre de niveau au nombre de niveau qu'il y a reellement
 clean_data<-na.omit(clean_data) # enleve toutes les lignes contenant des NA
 x11() # ouvre une fenetre graphique windows dans laquelle les prochains graphes seront affiches
+df2<-df[!is.na(df$col),] # cree un nouveau df sans les lignes avec NA dans la colonne col
+
 
 
 ##### TESTS STATISTIQUES ##############################################################################
@@ -30,15 +32,21 @@ x11() # ouvre une fenetre graphique windows dans laquelle les prochains graphes 
 # Test de correlation de Pearson
 cor.test(x2,y2,  method = "pearson")
 
-# Test du Khi deux (Test si effet d'une variable qualitative sur une autre variable qualitative) :
+# Test du Khi deux d'independence ou d'homogeneite (Test si effet d'une variable qualitative sur une autre variable qualitative) :
 table_contingence=table(inventory$espece,inventory$habitat)
 expected_frequencies=prop.table(table_contingence) # pas sur du truc !!
 expected_counts=round(expected_frequencies * nrow(inventory)) # pariel bizarre, donne juste la table de contingence
 chisq.test(table_contingence) # test sur le tableau de contingence
 chisq.test(table_contingence)$expected  #affichage des effectifs theoriques -> test si pour chaque classe >5 car condition de test
 chisq.test(table_contingence)$resid # donne les residus 
-seuil=qchisq(p=0.95,df=12)  #df = degree of freedom = (nb de lignes -1) * (nb de colonnes -1)
+seuil=qchisq(0.95,df=12)  #df = degree of freedom = (nb de lignes -1) * (nb de colonnes -1)
+seuil
 # on compare les effectifs attendus aux effectifs observes pour la conclusion biologique
+
+
+# Test du khi-deux de conformite :
+theorique=rep(10,length(df)) # avec 10 l'effectif attendu selon la loi de proba que l'on souhaite tester
+chisq.test(df$var, p=theorique)
 
 
 # Test t de Student (comparaison de la valeur moyenne d'une variable dans 2 échantillons) :
@@ -86,6 +94,24 @@ qt(0.975,28)
 qt(0.025, 28) # ou qt(0.975,28, lower.tail=FALSE)
 #Calcul de la valeur de statistique de test f qui suit une loi de Fisher
 var.test(x,y)
+
+
+# Test de correlation de Pearson :
+hist(var1)
+qqnorm(var1, main = "Q-Q Plot Var1", xlab = "Quantiles theoriques", ylab = "Quantiles d'echantillon") # test que chaque echantillon suive bien une loi normale avec un graphique quantile-quantile
+qqline(var1)
+hist(var2)
+qqnorm(var2, main = "Q-Q Plot Var2", xlab = "Quantiles theoriques", ylab = "Quantiles d'echantillon")
+qqline(var2)
+cor.test(var1,var2)
+
+# Test de correlation non parametrique de Spearman :
+var1 <- c(1, 2, 3, 4, 5)
+var2 <- c(2, 3, 4, 5, 6)
+cor(var1, var2, method = "spearman") #ou
+library(psych) #ou library(coin)
+cor.test(var1, var2, method = "spearman")
+
 
 
 # Test d'anova 1 facteur (de comparaison de moyennes) et test de Tukey :

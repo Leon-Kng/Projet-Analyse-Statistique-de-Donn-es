@@ -121,7 +121,7 @@ modele<-lm(var_quanti~var_qualit,data=df) # formation du modele lineaire
 anova(modele) # test anova sur le modele
 plot(modele,which=c(1,2)) # graphe des residus et quantile-quantile
 hist(M$res) # histogramme des residus
-# Test de Tukey
+# Test de Tukey-Kramer
 TukeyHSD(aov(var_quanti~var_qualit,data=df))  # test
 plot(TukeyHSD(aov(var_quanti~var_qualit,data=df))) # graphe des resultats du test
 

@@ -1,5 +1,5 @@
 
-### OUTILS ET MANIPULATION DES DONNEES ###
+##### OUTILS ET MANIPULATION DES DONNEES ##############################################################################
 rm(list=ls())  # nettoyer espace de travail
 dataframe<-read.table("color.csv",header=TRUE,sep="\t",stringsAsFactors = TRUE) # ouvre les donnees d'un CSV avec une tabulation en tant que separateur et traite les string comme des facteurs
 dataframe<-read_excel("chemin fichier.xlsx") # ouvre donnees d'un excel (necessite library "readxl")
@@ -25,7 +25,7 @@ clean_data<-na.omit(clean_data) # enleve toutes les lignes contenant des NA
 x11() # ouvre une fenetre graphique windows dans laquelle les prochains graphes seront affiches
 
 
-### TESTS STATISTIQUES ###
+##### TESTS STATISTIQUES ##############################################################################
 
 # Test de correlation de Pearson
 cor.test(x2,y2,  method = "pearson")
@@ -179,20 +179,18 @@ stepAIC(M)
 
 
 
-### VALEUR SEUIL ###
+##### VALEUR SEUIL ###########################################################################
 qt(0.95, 10, lower.tail = TRUE) # quantile 0.95 pour la loi de Student, de base lower.tail=TRUE
 # Si lower.tail=TRUE alors on regarde la valeur de x pour laquelle on a 95% de la surface sous la courbe à gauche et si lower.tail=FALSE alors les 95% sont à droite de la valeur seuil
 
 
-
-
-
-### GRAPHIQUES ###
+##### GRAPHIQUES ##############################################################################
 par(mfrow=c(x,y)) # determine l'affichage des graphiques par la suite, ils seront affiches avec x lignes et y colonnes
 plot(df$var1,df$var2,pch=19, xlab="Nom var1",ylab="Nom var2") #plot basique
 boxplot(var1~var2,data=df,xlab="Nom variable 1",ylab="Nom variable 2")
 hist(df$col1) # histogramme de la variable de la colonne 1, permet de voir la distribution 
 
-### PHRASES TYPES RESULTATS ###
+
+##### PHRASES TYPES RESULTATS ##############################################################################
 # Rejet de H0 -> On rejette H0 et on accepte l'hypothese alternative N1 avec une confiance de 95% car la probabilite d'observer de tel resultats est trop faible dans le cas d'H0.
 # Pas de rejet de H0 -> On ne rejette pas H0 car la probabilité d'observer de tel résultats dans le cas de cette hypothèse est trop importante.

@@ -22,6 +22,8 @@ df2<-df[df$col1 %in% c(1,4,"test"),] # creation d'un df2 avec toutes les lignes 
 valeurs_col1_ech1<-df$col1[df$col2=="test"] # stocke dans un vecteur les valeurs que prend la variable de la colonne 1 lorsque qu'une autre la valeur d'une autre variable est "test"
 df2$col1<-droplevels(tab2$col1)  # diminue le nombre de niveau au nombre de niveau qu'il y a reellement
 clean_data<-na.omit(clean_data) # enleve toutes les lignes contenant des NA
+x11() # ouvre une fenetre graphique windows dans laquelle les prochains graphes seront affiches
+
 
 ### TESTS STATISTIQUES ###
 
@@ -91,7 +93,7 @@ df$var_quali <- as.factor(df$var_quali)
 boxplot(var_quanti~var_qualit,data=df,xlab="Nom variable qualitative",ylab="Nom variable quantitative")
 modele<-lm(var_quanti~var_qualit,data=df) # formation du modele lineaire
 anova(modele) # test anova sur le modele
-plot(modele,which=c(1,2)) # graphe quantile-quantile des residus
+plot(modele,which=c(1,2)) # graphe des residus et quantile-quantile
 hist(M$res) # histogramme des residus
 # Test de Tukey
 TukeyHSD(aov(var_quanti~var_qualit,data=df))  # test
@@ -118,6 +120,65 @@ qf(0.95, ddl1, ddl2) # facteur beta, ddl1 = ddlB = nb de valeurs que peut prendr
 qf(0.95, ddl1, ddl2) # facteur teta d'interaction, ddl1 = ddlI = (nb valeurs que peut prendre var_quali1 - 1)X(nb valeurs que peut prendre var_quali2 - 1) et ddl2 = ddlR
 
 
+# Modele de regression simple (2 variables quantitatives):
+plot(df$var1,df$var2,pch=19,xlab="Nom var1",ylab="Nom var2")
+#Estimation des paramètres du modele Y = a + b*x + epsilon avec epsilon des residus qui suivent une loi normale centree
+bchap<-cov(df$var1,df$var2)/var(df$var1) # estimation des moindres carré de b
+achap<-mean(df$var2)-bchap*mean(df$var1) # estimation des moindres carré de a
+modele<-lm(var2~var1,data=df)
+modele
+abline(modele,col=2)
+# Vérification des conditions d'application :
+par(mfrow=c(1,2)) 
+plot(modele,which=c(1,2)) #graphe des residus pour voir si variance semble la meme (car condition, alors meme ecart entre les points) et si suit une loi normale (car condition, alors points sont centres autour de zero et graphe quantile-quantile pour savoir si les residus reduits suivent une loi normale car condition
+# Description du modele :
+summary(modele)
+summary(modele)$r.squared
+# Analyse des resultats : 
+### Coefficients :
+# ligne (Intercept) = test hyp H0:a=0 vs H1 : a!=0
+# ligne (eau) = test hyp H0: b=0, vs H1 : b!=0
+# Multiple R-squared = R2 : part de variabilité des donnees expliquee par le modele
+#  R2 = SCM/(SCM+SCR)
+
+
+# Regression multiple (que des variables quantitatives) :
+modele<-lm(var1~var2+var3+var4+var5,data=df) # var1 etant la variable que l'on souhaite tester, voir si elle est correlee a d'autres variables
+# Modele : Y = a + b*X + c*Z + d*V + e*W + epsilon
+# Pour chaque ligne varX du resultat, R teste H0: X=0 vs H1 :X!=0 avec x le facteur associe a la varX
+summary(modele) # estimation des coefficients, a du modele = (intercept) estimated, b du modele = varX X varX (estimated), etc...
+# Verification des residus 
+par(mfrow=c(1,2))
+plot(modele,which=c(1,2))
+library(car)
+vif(modele)
+summary(M)$r.squared # part expliquee de la variance par le modele
+#selection de modèle, procédure descendante
+M<-lm(var1~var2+var3+var4+var5, data=df)
+AIC(M)
+M1<-lm(var1~var2+var3+var4,data=df)
+M2<-lm(var1~var2+var3+var5,data=df)
+M3<-lm(var1~var2+var4+var5,data=df)
+M4<-lm(var1~var3+var4+var5,data=df)
+AIC(M,M1,M2,M3,M4)
+#on conserve M1 car a la plus petite AIC et on essaye de reduire le nombre de variables
+M11<-lm(var1~var3+var4,data=df)
+M12<-lm(var1~var2+var4,data=df)
+M13<-lm(var1~var2+var3,data=df)
+AIC(M1,M11,M12,M13)
+#d'après ce critère M1 est le meilleur car la plus petite valeur d'AIC
+# On compare ensuite les estimations des parametres dans M et M1
+M$coefficients
+M1$coefficients
+#le fait de retirer une variable, modifie l'estimation des autres paramètres il faut donc être précautionneux lorsque l'on fait cette procédure descendante. 
+#Autres possibilités : procédure montante, procédure "hybride" appelée "stepwise"
+# Selection de modèle "automatique", procédure "hybride" :
+AIC(M)
+library(MASS)
+stepAIC(M)
+
+
+
 ### VALEUR SEUIL ###
 qt(0.95, 10, lower.tail = TRUE) # quantile 0.95 pour la loi de Student, de base lower.tail=TRUE
 # Si lower.tail=TRUE alors on regarde la valeur de x pour laquelle on a 95% de la surface sous la courbe à gauche et si lower.tail=FALSE alors les 95% sont à droite de la valeur seuil
@@ -128,7 +189,7 @@ qt(0.95, 10, lower.tail = TRUE) # quantile 0.95 pour la loi de Student, de base 
 
 ### GRAPHIQUES ###
 par(mfrow=c(x,y)) # determine l'affichage des graphiques par la suite, ils seront affiches avec x lignes et y colonnes
-plot(df$var1,df$var2,pch=19) #plot basique
+plot(df$var1,df$var2,pch=19, xlab="Nom var1",ylab="Nom var2") #plot basique
 boxplot(var1~var2,data=df,xlab="Nom variable 1",ylab="Nom variable 2")
 hist(df$col1) # histogramme de la variable de la colonne 1, permet de voir la distribution 
 

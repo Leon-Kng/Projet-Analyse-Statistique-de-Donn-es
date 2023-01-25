@@ -1,6 +1,7 @@
 #### Projet analyse de données Statistiques S2 M1 BEE ####
 library(ggplot2)
 rm(list=ls()) # nettoyer espace de travail
+setwd("C:/Users/WIN7/Desktop/Projet analyse de données")
 data_brute <- read.csv("Rdata_exposition_larvaire.csv", header=TRUE, sep="\t")  # importation des données
 
 
@@ -110,3 +111,5 @@ eff_theo_L
 # Test du khi2 d'homogénéité
 tab_cont_L
 chisq.test(tab_cont_L)
+seuil=qchisq(p=0.95,df=12)  #df = degree of freedom = (nb de lignes -1) * (nb de colonnes -1)
+

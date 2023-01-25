@@ -107,8 +107,16 @@ boxplot(var_quanti~var_quali1+var_quali2, col=c(rep(c(2,3),3)), xlab="Nom var_qu
 modele<- lm(var_quanti~var_quali1*var_quali2) # cas AVEC interactions entre les 2 variables qualitatives
 modele<- lm(var_quanti~var_quali1+var_quali2) # cas SANS interactions
 anova(modele)
+par(mfrow=c(1,3))
 plot(modele,1) # graphe des residus pour voir si variance semble la meme (car condition, alors meme ecart entre les points) et si suit une loi normale (car condition, alors points sont centres autour de zero)
 plot(modele,2) # graphe quantile-quantile pour savoir si les residus reduits suivent une loi normale car condition
+# ou en une ligne avec plot(modele,which=c(1,2))
+hist(var_quanti)
+# Calcul du seuil pour chaque facteur !!
+qf(0.95, ddl1, ddl2) # facteur alpha, ddl1 = ddlA = nb de valeurs que peut prendre var_quali1 - 1 et ddl2 =ddlR = nb de valeurs - (nb valeurs que peut prendre var_quali1 X nb valeurs que peut prendre var_quali2)
+qf(0.95, ddl1, ddl2) # facteur beta, ddl1 = ddlB = nb de valeurs que peut prendre var_quali2 et ddl2 = ddlR
+qf(0.95, ddl1, ddl2) # facteur teta d'interaction, ddl1 = ddlI = (nb valeurs que peut prendre var_quali1 - 1)X(nb valeurs que peut prendre var_quali2 - 1) et ddl2 = ddlR
+
 
 ### VALEUR SEUIL ###
 qt(0.95, 10, lower.tail = TRUE) # quantile 0.95 pour la loi de Student, de base lower.tail=TRUE

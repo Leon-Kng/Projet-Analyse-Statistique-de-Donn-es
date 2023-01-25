@@ -1,6 +1,6 @@
 
 ### OUTILS ET MANIPULATION DES DONNEES ###
-rm(list=ls())  # supprime les elements de l'environnement
+rm(list=ls())  # nettoyer espace de travail
 dataframe<-read.table("color.csv",header=TRUE,sep="\t",stringsAsFactors = TRUE) # ouvre les donnees d'un CSV avec une tabulation en tant que separateur et traite les string comme des facteurs
 dataframe<-read_excel("chemin fichier.xlsx") # ouvre donnees d'un excel (necessite library "readxl")
 load("projet.RData") # ouvre un projet en .RData avec des varibales dans l'environnement
@@ -21,7 +21,7 @@ df2 <- df[1:3,4:7] # permet de creer un nouveau df avec les lignes 1 a 3 et les 
 df2<-df[df$col1 %in% c(1,4,"test"),] # creation d'un df2 avec toutes les lignes de df dans lesquel la variable de la colonne col1 contiennent 1 ou 4 ou "test"
 valeurs_col1_ech1<-df$col1[df$col2=="test"] # stocke dans un vecteur les valeurs que prend la variable de la colonne 1 lorsque qu'une autre la valeur d'une autre variable est "test"
 df2$col1<-droplevels(tab2$col1)  # diminue le nombre de niveau au nombre de niveau qu'il y a reellement
-
+clean_data<-na.omit(clean_data) # enleve toutes les lignes contenant des NA
 
 ### TESTS STATISTIQUES ###
 
@@ -40,6 +40,7 @@ seuil=qchisq(p=0.95,df=12)  #df = degree of freedom = (nb de lignes -1) * (nb de
 
 
 # Test t de Student (comparaison de la valeur moyenne d'une variable dans 2 échantillons) :
+# Test de la normalité des echantillons (car condition)
 morphometrie_splited=split(morphometrie, morphometrie$sexe)
 hist(morphometrie_splited$F$lgr, xlab="Longueur femur", main="Femelles")
 qqnorm(morphometrie_splited$F$lgr, main = "Q-Q Plot Femelles", xlab = "Quantiles theoriques", ylab = "Quantiles d'echantillon") # test que chaque echantillon suive bien une loi normale avec un graphique quantile-quantile
@@ -47,7 +48,7 @@ qqline(morphometrie_splited$F$lgr)
 qqnorm(morphometrie_splited$M$lgr, main = "Q-Q Plot Males", xlab = "Quantiles theoriques", ylab = "Quantiles d'echantillon")
 qqline(morphometrie_splited$M$lgr)
 boxplot(var1~var2,data=df,xlab="Nom variable 1",ylab="Nom variable 2")
-# On considère que la variance de la variable etudiee est la meme pour les 2 echantillons -> condition du test
+# Tester si variances sont égales (car condition) avec un test de Fisher d'égalité de 2 variances 
 t.test(morphometrie_splited$M$lgr,morphometrie_splited$F$lgr,var.equal=TRUE, alternative="greater") # test de Student entre les valeurs de la variable de chaque échantillon, alternative ="two.sided" si on cherche a savoir si la valeur moyenne d'un des echantillon est plus grande ou moins grande que l'autre et alternative="less" si on veut savoir si elle est plus petite
 qt(0.95,ddl)
 
@@ -66,9 +67,54 @@ barplot(acp$eig[,1]) # donne le graphe des eboulis/histogramme des valeurs propr
 plot.PCA(acp, choix="var", axes=c(2,3)) # cercle des correlations, ici on prend les dimensions 2 et 3 pour faire le cerc
 plot.PCA(acp, choix ="ind", habillage=8, invisible="quali", label="none") # graphe des individus, habillage=8 signifie que la colonne 8 du df originiel determine les categories, par ex espece
 
+
+# Test d'homogeneite sur la variance/ test F / test de Fisher d'égalité de 2 variances (F test) :
+x<-df$var[df$col==1] # stocke dans une variable les valeurs prisent par la variable var pour les individus ayant la valeur 1 pour la colonne col
+y<-df$var[df$col==4]
+# Test si echantillons sont Gaussiens
+par(mfrow=c(2,2))
+hist(x,xlab="Hauteur arbre",main="Parcelle 1")
+hist(y,xlab="Hauteur arbre",main="Parcelle 4")
+qqnorm(x,main="Parcelle 1")
+qqline(x)
+qqnorm(y,main="Parcelle 4")
+qqline(y)
+# Calcul limites de la zone de rejet
+qt(0.975,28)
+qt(0.025, 28) # ou qt(0.975,28, lower.tail=FALSE)
+#Calcul de la valeur de statistique de test f qui suit une loi de Fisher
+var.test(x,y)
+
+
+# Test d'anova 1 facteur (de comparaison de moyennes) et test de Tukey :
+df$var_quali <- as.factor(df$var_quali)
+boxplot(var_quanti~var_qualit,data=df,xlab="Nom variable qualitative",ylab="Nom variable quantitative")
+modele<-lm(var_quanti~var_qualit,data=df) # formation du modele lineaire
+anova(modele) # test anova sur le modele
+plot(modele,which=c(1,2)) # graphe quantile-quantile des residus
+hist(M$res) # histogramme des residus
+# Test de Tukey
+TukeyHSD(aov(var_quanti~var_qualit,data=df))  # test
+plot(TukeyHSD(aov(var_quanti~var_qualit,data=df))) # graphe des resultats du test
+
+
+# Test d'anova à 2 facteurs
+var_quali1 <- as.factor(df$var_quali1)
+var_quali2 <- as.factor(df$var_quali2)
+var_quanti <- df$var_quanti
+table(var_quali1, var_quali2) # Test si equilibre (car condition)
+boxplot(var_quanti~var_quali1+var_quali2, col=c(rep(c(2,3),3)), xlab="Nom var_quali2.Nom var_quali1", ylab="Nom var quantitative") # avec 2 et 3 la couleur des cases, si on a une case en plus alors mettre 2,3,4 par ex / col=as.numeric(levels(df$var_quali2))+1
+modele<- lm(var_quanti~var_quali1*var_quali2) # cas AVEC interactions entre les 2 variables qualitatives
+modele<- lm(var_quanti~var_quali1+var_quali2) # cas SANS interactions
+anova(modele)
+plot(modele,1) # graphe des residus pour voir si variance semble la meme (car condition, alors meme ecart entre les points) et si suit une loi normale (car condition, alors points sont centres autour de zero)
+plot(modele,2) # graphe quantile-quantile pour savoir si les residus reduits suivent une loi normale car condition
+
 ### VALEUR SEUIL ###
 qt(0.95, 10, lower.tail = TRUE) # quantile 0.95 pour la loi de Student, de base lower.tail=TRUE
 # Si lower.tail=TRUE alors on regarde la valeur de x pour laquelle on a 95% de la surface sous la courbe à gauche et si lower.tail=FALSE alors les 95% sont à droite de la valeur seuil
+
+
 
 
 

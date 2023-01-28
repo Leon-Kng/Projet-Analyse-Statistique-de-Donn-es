@@ -11,6 +11,7 @@ mean(df$colonne)# calcule la moyenne des valeurs de la colonne desiree
 var(df$colonne) # calcule la variance
 sd(df$colonne) # standard error = erreur type de la moyenne = (ecart type de la pop / sqrt(taille echantillon) 
 length(df$col) # donne la longueur de la colonne/ le nb de valeurs
+unique(df$col) # affiche les valeurs que prend la variable de la colonne col
 sqrt(x) # fonction racine carrée
 echantillon<-sample(df$col,50) # permet de creer un echantillon a partir d'une population, ici 50 tirages
 df_splited=split(df, df$col) # va spliter le df en fonction des valeurs dans variable col par exemple si SEXE alors split F et M 
